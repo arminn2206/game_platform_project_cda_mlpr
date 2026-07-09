@@ -22,7 +22,7 @@ The pipeline integrates and compares prices from two sources:
 | Source | Method | Notes |
 |---|---|---|
 | **Steam** | Live data via Steam's public JSON endpoints | Real-time pricing |
-| **Epic Games/Common Retail Price** | Loaded from a Kaggle CSV dataset (Epic Games Store listings) | A historical snapshot rather than a live feed, so it's labeled as a general retail reference price rather than a current Epic Games Store price |
+| **Epic Games** | Loaded from a Kaggle CSV dataset (Epic Games Store listings) | A historical snapshot rather than a live feed, so it's labeled as a general retail reference price rather than a current Epic Games Store price |
 
 Raw rows from each source are inserted with `game_id = NULL` and only a raw title. A dedicated fuzzy-matching step then resolves each title to its canonical `game_id` and records a `match_confidence` score for every row - matched or not - so weak matches remain auditable instead of silently incorrect. Ingestion and normalization are kept as separate, independently testable steps.
 
@@ -32,7 +32,7 @@ Raw rows from each source are inserted with `game_id = NULL` and only a raw titl
 Games table  <───┐
                   │  game_id (matched)
 Prices table ─────┘
-  ├─ Steam rows                (Steam's public JSON endpoints)
+  ├─ Steam rows       (Steam's public JSON endpoints)
   └─ Epic Games rows  (Kaggle CSV dataset)
 
 User_Likes table  (populated by the app's "Like" feature)
@@ -69,7 +69,7 @@ An interactive dashboard (`app.py`) built with Streamlit, unifying the data pipe
 ```text
 game_platform_project/
 ├── data/
-│   ├── games.csv                 # Common Retail Price source (Epic Games Store listings)
+│   ├── games.csv                  #  Epic Games Store listings
 │   └── steam-200k.csv             # Kaggle Steam-200k interactions dataset
 ├── db/
 │   ├── schema.sql                 # Games, Prices, User_Likes DDL
@@ -79,7 +79,7 @@ game_platform_project/
 ├── scripts/
 │   ├── fetch_rawg_metadata.py     # Pulls game metadata from RAWG
 │   ├── fetch_steam_prices.py      # Fetches live Steam pricing
-│   ├── load_epic_dataset.py       # Loads Common Retail Price data from data/games.csv
+│   ├── load_epic_dataset.py       # Loads Epic Games Store data from data/games.csv
 │   ├── fuzzy_match_games.py       # Normalizes raw titles to game_id
 │   ├── fix_prices.py              # One-off cents-to-dollars price correction
 │   ├── price_summary_engine.py    # get_price_summary(game_id)
