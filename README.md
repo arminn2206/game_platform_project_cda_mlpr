@@ -42,9 +42,9 @@ User_Likes table  (populated by the app's "Like" feature)
 
 The recommendation engine uses **content-based filtering** with a **K-Nearest Neighbors (k-NN)** algorithm.
 
-- **Vectorization** — builds a user centroid vector from the features (genres, Metacritic scores) of a user's liked games.
-- **Holdout evaluation** — validated with a strict **60/20/20 train/validation/test split** on the Kaggle dataset to guard against overfitting.
-- **Metrics** — computes Precision, Recall, and F1-Score, and generates `precision_recall_curve.png` to visualize model performance across thresholds.
+- **Vectorization** - builds a user centroid vector from the features (genres, Metacritic scores) of a user's liked games.
+- **Holdout evaluation** - validated with a strict **60/20/20 train/validation/test split** on the Kaggle dataset to guard against overfitting.
+- **Metrics** - computes Precision, Recall, and F1-Score, and generates `precision_recall_curve.png` to visualize model performance across thresholds.
 
 ## Web Application
 
@@ -118,10 +118,8 @@ python scripts/fetch_rawg_metadata.py --count 3000
 python scripts/fetch_steam_prices.py
 
 # 4. Load Common Retail Price data from a downloaded Kaggle CSV
-#    (sourced from Epic Games Store listings; see load_epic_dataset.py's
-#    docstring for dataset links and how to adjust DATASET_COLUMN_MAP
-#    to your file's columns)
-python scripts/load_epic_dataset.py --csv data/epic_games_store.csv
+#    (sourced from Epic Games Store listings)
+python scripts/load_epic_dataset.py --csv data/games.csv
 
 # 5. Resolve every raw store title to the correct game_id
 python scripts/fuzzy_match_games.py
