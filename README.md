@@ -94,6 +94,3 @@ game_platform_project/
 ```
 ## Link to Web Application:
 ### https://gameplatformprojectcdamlpr.streamlit.app
-# 7. Launch the web application
-streamlit run app.py
-```
