@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import numpy as np
+import sys
 import matplotlib.pyplot as plt
 from scripts.price_summary_engine import get_price_summary
 from scripts.recommendation_engine import get_ml_recommendations
@@ -227,12 +228,7 @@ elif app_page == "📊 Admin & ML Metrics":
     if st.button("🚀 Run ML Evaluation Pipeline"):
         with st.spinner("Executing model evaluation (this may take a minute)..."):
             try:
-                result = subprocess.run(
-                    ["python", "scripts/recommendation_model.py"],
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
+                result = subprocess.run([sys.executable, "scripts/recommendation_model.py"], capture_output=True, text=True, check=True)
                 
                 # --- AUTOMATIC TEXT EXTRACTION ---
                 # Search the terminal text for your exact metric numbers
