@@ -1,0 +1,117 @@
+# Phase 1: Data Engineering & Summarization (CDA)
+
+Game Platforms Summarization and Recommendation — Computational Data Analytics, ETF Sarajevo (Prof. Dr. Aida Branković)
+
+This is the completed **Phase 1** deliverable from the Project Master Plan. It builds the database, the data pipeline, and the price summarization engine that Phase 2 (ML recommendations) and Phase 3 (Streamlit UI) depend on.
+
+## Scope decision (read this first)
+
+Two adjustments were made to the original plan, based on real constraints discovered during implementation:
+
+1. **InstantGaming is dropped.** No usable API or maintained scraper exists for it. The pipeline covers **Steam and Epic Games only**, which is still a fragmented, real multi-store comparison.
+2. **Epic Games prices come from a Kaggle dataset, not a scraper.** Epic's storefront has no public pricing API and is a JavaScript SPA that would require fragile Selenium automation with no stable contract to scrape against. A static dataset gives a reproducible, gradeable input — the same justification the Master Plan already uses for the Kaggle dataset in Phase 2.
+
+Both decisions and their rationale belong in the Technical Report's CDA section (Phase 3, Step 3.4) — the code comments in `load_epic_dataset.py` already contain ready-to-adapt wording.
+
+## Architecture
+
+```
+Games table  <───┐
+                  │  game_id (matched)
+Prices table ─────┘
+  ├─ Steam rows   (from Steam's public JSON endpoints)
+  └─ Epic rows    (from a Kaggle CSV dataset)
+
+User_Likes table  (written by Phase 3's Streamlit "Like" button)
+```
+
+Raw Steam/Epic rows are inserted with `game_id = NULL` and only a raw store title. A separate fuzzy-matching pass then resolves each raw title to the correct `game_id`, and stores a `match_confidence` score for every row — matched or not — so weak matches are auditable rather than silently wrong. This keeps scraping/loading and normalization as clean, independently-testable steps, exactly as separated in Step 1.3.
+
+## Project layout
+
+```
+game_platform_project/
+├── db/
+│   ├── schema.sql              # Games, Prices, User_Likes DDL
+│   └── setup_database.py       # Step 1.1
+├── scripts/
+│   ├── config.py                # shared env vars, paths, logging
+│   ├── fetch_rawg_metadata.py   # Step 1.2
+│   ├── fetch_steam_prices.py    # Step 1.3 (Steam)
+│   ├── load_epic_dataset.py     # Step 1.3 (Epic, dataset-based)
+│   ├── fuzzy_match_games.py     # Step 1.3 (normalization)
+│   ├── price_summary_engine.py  # Step 1.4 — get_price_summary(game_id)
+│   └── seed_sample_data.py      # demo/offline data, not graded
+├── tests/
+│   └── test_phase1_pipeline.py  # end-to-end proof, no API keys needed
+├── requirements.txt
+└── .env.example
+```
+
+## Setup
+
+```bash
+git clone <your-repo-url>
+cd game_platform_project
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+cp .env.example .env
+# edit .env and paste your free RAWG key from https://rawg.io/apidocs
+```
+
+## Running Phase 1 end to end
+
+```bash
+# 1. Create the database and tables
+python db/setup_database.py
+
+# 2. Pull 1,000–5,000 games from RAWG
+python scripts/fetch_rawg_metadata.py --count 3000
+
+# 3. Gather Steam prices (auto-narrows Steam's full catalogue to
+#    plausible matches before spending rate-limited requests)
+python scripts/fetch_steam_prices.py
+
+# 4. Load Epic Games prices from your downloaded Kaggle CSV
+#    (see the docstring in load_epic_dataset.py for dataset links
+#    and how to adjust DATASET_COLUMN_MAP to your file's columns)
+python scripts/load_epic_dataset.py --csv data/epic_games_store.csv
+
+# 5. Resolve every raw store title to the correct game_id
+python scripts/fuzzy_match_games.py
+
+# 6. Try the summarization engine on any RAWG game_id
+python scripts/price_summary_engine.py 3328
+```
+
+## Running without API keys (offline demo / grading)
+
+```bash
+python db/setup_database.py
+python scripts/seed_sample_data.py
+python scripts/fuzzy_match_games.py
+python scripts/price_summary_engine.py 3328
+# -> "Cheapest price is $14.99 on Steam (30% off). Epic Games is $19.99."
+```
+
+## Tests
+
+```bash
+python -m pytest tests/test_phase1_pipeline.py -v
+```
+
+All four tests run against an isolated temporary database seeded with realistic sample data, and verify: fuzzy matching resolves every sample row, the summarization engine picks the true minimum price, single-store games are handled correctly, and unmatched/unknown games fail gracefully instead of crashing the future Streamlit "View Details" button.
+
+## What Phase 2 and Phase 3 can now rely on
+
+- `Games` and `Prices` tables, populated and normalized.
+- `get_price_summary(game_id)` — call it directly from the Streamlit "View Details" button; it never raises on missing data, it returns an explanatory `summary_text` instead.
+- `User_Likes` table ready for Phase 3's "Like" button (`session_id`, `game_id`) — nothing further to build in Phase 1 for this.
+- Feature Engineering (Step 2.2) can read `Games.genres`, `Games.metacritic`, and the matched minimum price per game directly from `Prices` via a simple `MIN(price) GROUP BY game_id` query.
+
+## Known limitations to disclose in the Technical Report
+
+- RAWG's `developers` field is sometimes empty for very new or very obscure titles; `developer` will be `NULL` in those rows.
+- Steam's `appdetails` endpoint is rate-limited (~200 requests / 5 minutes per IP); `fetch_steam_prices.py` pre-filters candidates locally to stay well under that limit, but a full 3,000–5,000 game run will still take a while — run it once and cache results, don't re-run it repeatedly.
+- Fuzzy matching is probabilistic. `match_confidence` is stored for every row (matched or not) specifically so borderline cases can be spot-checked rather than trusted blindly — this is worth a sentence in the report's discussion of data quality.
