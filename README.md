@@ -1,4 +1,4 @@
-```markdown
+
 # Phase 1: Data Engineering & Summarization (CDA)
 
 Game Platforms Summarization and Recommendation — Computational Data Analytics, ETF Sarajevo (Prof. Dr. Aida Branković)
