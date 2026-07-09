@@ -187,7 +187,7 @@ elif app_page == "✨ For You (Recommendations)":
                         st.subheader(display_title, help=row['title'])
                         
                         if 'image_url' in row and pd.notna(row['image_url']):
-                            st.image(row['image_url'], use_container_width=True)
+                            st.image(row['image_url'], use_column_width=True)
                         else:
                             st.image("https://via.placeholder.com/300x400?text=No+Poster", use_container_width=True)
                             
