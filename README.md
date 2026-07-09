@@ -80,6 +80,10 @@ game_platform_project/
 │   ├── setup_database.py          # Initializes the database
 │   ├── game_platform.db           # SQLite database
 │   └── model_metrics.json         # Latest holdout evaluation metrics
+├── report/
+│   ├── latex/                     # Report in .tex format downloaded from Overleaf
+│   ├── papers/                    # Reference papers for the project report              
+│   ├── Project_Report_Pasic_Memisevic.pdf
 ├── scripts/
 │   ├── fetch_rawg_metadata.py     # Pulls game metadata from RAWG
 │   ├── fetch_steam_prices.py      # Fetches live Steam pricing
