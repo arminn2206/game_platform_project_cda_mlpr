@@ -22,9 +22,10 @@ def load_data():
     query = """
         SELECT g.game_id, g.title, g.genres, g.metacritic, MIN(p.price) as price
         FROM Games g
-        LEFT JOIN Prices p ON g.game_id = p.game_id
-        WHERE g.genres IS NOT NULL
-        GROUP BY g.game_id;
+        INNER JOIN Prices p ON g.game_id = p.game_id
+        WHERE g.genres IS NOT NULL AND p.price > 0
+        GROUP BY g.game_id
+        HAVING COUNT(DISTINCT p.store) = 2;
     """
     df_games = pd.read_sql_query(query, conn)
     conn.close()
