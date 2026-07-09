@@ -69,9 +69,12 @@ An interactive dashboard (`app.py`) built with Streamlit, unifying the data pipe
 game_platform_project/
 ├── data/
 │   └── steam-200k.csv           # Kaggle dataset
+│   └── games.csv           # Kaggle dataset
 ├── db/
 │   ├── schema.sql               # Games, Prices, User_Likes DDL
 │   └── setup_database.py        # Initializes the database
+│   └── model_metrics.json       #
+│   └── game_platform.db         #
 ├── scripts/
 │   ├── config.py                # Shared env vars, paths, logging
 │   ├── fetch_rawg_metadata.py   # Pulls game metadata from RAWG
@@ -82,12 +85,12 @@ game_platform_project/
 │   ├── seed_sample_data.py      # Demo/offline sample data
 │   ├── recommendation_model.py  # ML pipeline & holdout evaluation
 │   └── export_audit_queue.py    # QA script for unmatched prices
-├── tests/
-│   └── test_phase1_pipeline.py  # End-to-end pipeline tests
+│   └── recommendation_engine.py # 
 ├── app.py                       # Streamlit application
+├── config.py                    #
 ├── precision_recall_curve.png   # Generated ML plot
-├── requirements.txt
-└── .env.example
+├── requirements.txt             #
+└── .env                         #
 ```
 
 ## Getting Started
