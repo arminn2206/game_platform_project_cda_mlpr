@@ -136,28 +136,6 @@ python scripts/price_summary_engine.py 3328
 streamlit run app.py
 ```
 
-### Running Without API Keys (Offline Demo)
-
-```bash
-python db/setup_database.py
-python scripts/seed_sample_data.py
-python scripts/fuzzy_match_games.py
-python scripts/price_summary_engine.py 3328
-# -> "Cheapest price is $14.99 on Steam (30% off). Common Retail Price is $19.99."
-```
-
-## Testing
-
-```bash
-python -m pytest tests/test_phase1_pipeline.py -v
-```
-
-Tests run against an isolated temporary database seeded with realistic sample data, and verify that:
-- Fuzzy matching resolves every sample row.
-- The summarization engine correctly identifies the true minimum price.
-- Single-store games are handled correctly.
-- Unmatched or unknown games fail gracefully rather than crashing the app's "View Details" feature.
-
 ## Key Interfaces for Extension
 
 - `Games` and `Prices` tables — populated and normalized, ready for downstream use.
