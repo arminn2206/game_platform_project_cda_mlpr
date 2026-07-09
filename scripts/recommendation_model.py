@@ -4,6 +4,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
+import json
+
 # Quiet down scikit-learn's feature name warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -22,10 +24,9 @@ def load_data():
     query = """
         SELECT g.game_id, g.title, g.genres, g.metacritic, MIN(p.price) as price
         FROM Games g
-        INNER JOIN Prices p ON g.game_id = p.game_id
-        WHERE g.genres IS NOT NULL AND p.price > 0
-        GROUP BY g.game_id
-        HAVING COUNT(DISTINCT p.store) = 2;
+        LEFT JOIN Prices p ON g.game_id = p.game_id
+        WHERE g.genres IS NOT NULL
+        GROUP BY g.game_id;
     """
     df_games = pd.read_sql_query(query, conn)
     conn.close()
@@ -109,21 +110,17 @@ def evaluate_model_holdout(interactions, df_games, feature_matrix, knn_model):
             recs = feature_matrix.iloc[recommended_indices]['game_id'].values
             
             # Filter out known likes and keep top N
-            # dict.fromkeys() is a Python trick to remove duplicates while keeping the original order!
             recs_filtered = list(dict.fromkeys([r for r in recs if r not in known_likes]))[:N]
             
-            # Force both lists into sets to absolutely guarantee no double-counting
             set_recs = set(recs_filtered)
             set_hidden = set(hidden_likes)
             
             # True Positives
             hits = len(set_recs.intersection(set_hidden))
             
-            # THE FIX: Divide by the actual number of recommendations (len(set_recs)), not the static N.
             actual_recs_count = len(set_recs)
             precision = hits / actual_recs_count if actual_recs_count > 0 else 0
             
-            # Recall: hits divided by the total hidden likes available
             total_hidden_count = len(set_hidden)
             recall = hits / total_hidden_count if total_hidden_count > 0 else 0
             
@@ -152,11 +149,28 @@ def evaluate_model_holdout(interactions, df_games, feature_matrix, knn_model):
     for i, txt in enumerate(n_cutoffs):
         plt.annotate(f"N={txt}", (avg_recalls[i], avg_precisions[i]), textcoords="offset points", xytext=(0,10), ha='center')
         
-    # FIXED PATH: Save the curve directly into the root folder where it was originally expected
+    # Plot saved successfully
     plot_filename = os.path.abspath(os.path.join(BASE_DIR, "..", "precision_recall_curve.png"))
     plt.savefig(plot_filename, dpi=300, bbox_inches='tight')
     plt.close()
     print(f"\n Saved official Precision-Recall Curve plot as: '{plot_filename}'")
+
+    # JSON saving block
+    metrics_data = {
+        "precision": round(float(p_at_5), 4),
+        "recall": round(float(r_at_5), 4),
+        "f1_score": round(float(f1_at_5), 4),
+        "f1": round(float(f1_at_5), 4),  # Backup key for app compatibility
+        "recall_curve_points": [round(float(x), 4) for x in avg_recalls],
+        "precision_curve_points": [round(float(x), 4) for x in avg_precisions]
+    }
+    
+    json_path = os.path.abspath(os.path.join(BASE_DIR, "..", "model_metrics.json"))
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(metrics_data, f, indent=4)
+        
+    print(f" Saved official metrics JSON as: '{json_path}'")
+
 
 if __name__ == "__main__":
     df_games, interactions = load_data()
