@@ -1,7 +1,9 @@
 
 # Game Platform Recommendation & Price Comparison Engine
 
-**Game Platforms Summarization and Recommendation** - Computational Data Analytics, Machine Learning Supervised Techniques, ETF Sarajevo (Prof. Dr. Aida Branković)
+**Game Platforms Summarization and Recommendation** 
+
+Computational Data Analytics, Machine Learning Supervised Techniques, ETF Sarajevo (Prof. Dr. Aida Branković)
 
 A data-driven platform that aggregates game pricing across multiple storefronts, generates personalized recommendations using a K-Nearest Neighbors model, and presents both through an interactive Streamlit dashboard.
 
