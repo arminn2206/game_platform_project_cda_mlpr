@@ -1,21 +1,20 @@
+```markdown
 # Phase 1: Data Engineering & Summarization (CDA)
 
 Game Platforms Summarization and Recommendation — Computational Data Analytics, ETF Sarajevo (Prof. Dr. Aida Branković)
 
 This is the completed **Phase 1** deliverable from the Project Master Plan. It builds the database, the data pipeline, and the price summarization engine that Phase 2 (ML recommendations) and Phase 3 (Streamlit UI) depend on.
 
-## Scope decision (read this first)
+## Data Scope
 
-Two adjustments were made to the original plan, based on real constraints discovered during implementation:
+The pipeline successfully integrates and compares prices across two major storefronts: **Steam** and **Epic Games**, providing a robust multi-store comparison.
 
-1. **InstantGaming is dropped.** No usable API or maintained scraper exists for it. The pipeline covers **Steam and Epic Games only**, which is still a fragmented, real multi-store comparison.
-2. **Epic Games prices come from a Kaggle dataset, not a scraper.** Epic's storefront has no public pricing API and is a JavaScript SPA that would require fragile Selenium automation with no stable contract to scrape against. A static dataset gives a reproducible, gradeable input — the same justification the Master Plan already uses for the Kaggle dataset in Phase 2.
-
-Both decisions and their rationale belong in the Technical Report's CDA section (Phase 3, Step 3.4) — the code comments in `load_epic_dataset.py` already contain ready-to-adapt wording.
+1. **Steam Data:** Live pricing data is fetched directly using Steam's public JSON endpoints.
+2. **Epic Games Data:** Price data is loaded from a Kaggle CSV dataset, ensuring a highly reproducible, structured, and stable data source for the machine learning models.
 
 ## Architecture
 
-```
+```text
 Games table  <───┐
                   │  game_id (matched)
 Prices table ─────┘
@@ -64,7 +63,7 @@ The final deliverable is an interactive web dashboard (`app.py`) deployed on Str
 
 ## Project layout
 
-```
+```text
 game_platform_project/
 ├── data/
 │   └── steam-200k.csv           # Kaggle dataset
@@ -99,7 +98,7 @@ python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
 cp .env.example .env
-# edit .env and paste your free RAWG key from https://rawg.io/apidocs
+# edit .env and paste your free RAWG key from [https://rawg.io/apidocs](https://rawg.io/apidocs)
 
 ```
 
@@ -158,12 +157,10 @@ All four tests run against an isolated temporary database seeded with realistic 
 ## What Phase 2 and Phase 3 can now rely on
 
 * `Games` and `Prices` tables, populated and normalized.
-* `get_price_summary(game_id)` — call it directly from the Streamlit "View Details" button; it never raises on missing data, it returns an explanatory `summary_text` instead.
-* `User_Likes` table ready for Phase 3's "Like" button (`session_id`, `game_id`) — nothing further to build in Phase 1 for this.
+* `get_price_summary(game_id)` — call it directly from the Streamlit "View Details" button; it returns an explanatory `summary_text`.
+* `User_Likes` table ready for Phase 3's "Like" button (`session_id`, `game_id`).
 * Feature Engineering (Step 2.2) can read `Games.genres`, `Games.metacritic`, and the matched minimum price per game directly from `Prices` via a simple `MIN(price) GROUP BY game_id` query.
 
-## Known limitations to disclose in the Technical Report
+```
 
-* RAWG's `developers` field is sometimes empty for very new or very obscure titles; `developer` will be `NULL` in those rows.
-* Steam's `appdetails` endpoint is rate-limited (~200 requests / 5 minutes per IP); `fetch_steam_prices.py` pre-filters candidates locally to stay well under that limit, but a full 3,000–5,000 game run will still take a while — run it once and cache results, don't re-run it repeatedly.
-* Fuzzy matching is probabilistic. `match_confidence` is stored for every row (matched or not) specifically so borderline cases can be spot-checked rather than trusted blindly — this is worth a sentence in the report's discussion of data quality.
+```
