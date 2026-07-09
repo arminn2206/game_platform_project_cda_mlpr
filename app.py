@@ -272,7 +272,7 @@ elif app_page == "📊 Admin & ML Metrics":
             spacer_left, img_col, spacer_right = st.columns([1, 2, 1])
             
             with img_col:
-                st.image(plot_path, caption="Phase 2: Technical Precision-Recall Curve", use_container_width=True)
+                st.image(plot_path, caption="Phase 2: Technical Precision-Recall Curve", use_column_width=True)
                 
     # If the button hasn't been clicked yet, show this warning instead
     else:
