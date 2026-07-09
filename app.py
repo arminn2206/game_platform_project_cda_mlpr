@@ -104,15 +104,15 @@ if st.sidebar.button("Clear Likes"):
 st.sidebar.divider()
 st.sidebar.title("🧭 Navigation")
 app_page = st.sidebar.radio("Go to:", [
-    "🎮 Game Explorer", 
+    "🎮 Game Store Price Recommendation and Summarization", 
     "✨ For You (Recommendations)",
     "📊 Admin & ML Metrics"
 ])
 
 
-# --- PAGE 1: GAME EXPLORER ---
-if app_page == "🎮 Game Explorer":
-    st.title("🎮 Game Explorer")
+# --- PAGE 1: Game Store Price Recommendation and Summarization ---
+if app_page == "🎮 Game Store Price Recommendation and Summarization":
+    st.title("🎮 Game Store Price Recommendation and Summarization")
     st.markdown("Browse the database. Click **View Details** to check prices, and **Like** games to build your taste profile!")
 
     all_titles = get_search_suggestions()
@@ -159,7 +159,7 @@ elif app_page == "✨ For You (Recommendations)":
     st.markdown("Our Phase 2 Content-Based ML Classifier evaluates your favorite features to generate these real-time selections.")
 
     if not st.session_state.liked_games:
-        st.info("💡 Your recommendation engine is empty! Go back to the **Game Explorer** page and click '🤍 Like' on a few titles first.")
+        st.info("💡 Your recommendation engine is empty! Go back to the **Game Store Price Recommendation and Summarization** page and click '🤍 Like' on a few titles first.")
     else:
         with st.spinner("Running ML classifier matrix matching..."):
             rec_df = get_ml_recommendations(st.session_state.liked_games, top_n=5)
