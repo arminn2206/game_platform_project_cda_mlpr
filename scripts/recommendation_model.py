@@ -64,8 +64,8 @@ def evaluate_model_holdout(interactions, df_games, feature_matrix, knn_model):
     """Performs a strict 60/20/20 Holdout evaluation and saves a Precision-Recall Curve (Step 2.4)."""
     print("\n5. Starting Rigorous Model Evaluation (60/20/20 Split)...")
     
-    interactions['title_clean'] = interactions['game_title'].str.lower().str.strip()
-    df_games['title_clean'] = df_games['title'].str.lower().str.strip()
+    interactions['title_clean'] = interactions['game_title'].str.lower().str.replace(r'[^a-z0-9]', '', regex=True)
+    df_games['title_clean'] = df_games['title'].str.lower().str.replace(r'[^a-z0-9]', '', regex=True)
     
     mapped_data = interactions.merge(df_games[['game_id', 'title_clean']], on='title_clean', how='inner')
     user_game_counts = mapped_data.groupby('user_id')['game_id'].nunique()
