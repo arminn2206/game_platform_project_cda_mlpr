@@ -94,14 +94,12 @@ game_platform_project/
 ## Link to Website:
 ### https://gameplatformprojectcdamlpr.streamlit.app
 
-## Getting Started
-
-### Installation
+## How the Streamlit app was made:
 
 ```bash
-git clone <your-repo-url>
 cd game_platform_project
-python -m venv venv && source venv/bin/activate
+python -m venv venv
+venv/bin/activate
 pip install -r requirements.txt
 
 cp .env.example .env
@@ -121,8 +119,7 @@ python scripts/fetch_rawg_metadata.py --count 3000
 #    plausible matches before spending rate-limited requests)
 python scripts/fetch_steam_prices.py
 
-# 4. Load Common Retail Price data from a downloaded Kaggle CSV
-#    (sourced from Epic Games Store listings)
+# 4. Load Epic Games Store data from a downloaded Kaggle CSV
 python scripts/load_epic_dataset.py --csv data/games.csv
 
 # 5. Resolve every raw store title to the correct game_id
@@ -131,16 +128,6 @@ python scripts/fuzzy_match_games.py
 # 6. Export any unmatched prices for manual review
 python scripts/export_audit_queue.py
 
-# 7. Test the summarization engine on any RAWG game_id
-python scripts/price_summary_engine.py 3328
-
-# 8. Launch the web application
+# 7. Launch the web application
 streamlit run app.py
 ```
-
-## Key Interfaces for Extension
-
-- `Games` and `Prices` tables — populated and normalized, ready for downstream use.
-- `get_price_summary(game_id)` — returns an explanatory `summary_text`; used directly by the app's "View Details" feature.
-- `User_Likes` table — supports the app's "Like" feature (`session_id`, `game_id`).
-- Feature engineering can read `Games.genres`, `Games.metacritic`, and the matched minimum price per game directly from `Prices` via a simple `MIN(price) GROUP BY game_id` query.
