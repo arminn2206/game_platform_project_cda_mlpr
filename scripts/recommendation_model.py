@@ -21,12 +21,14 @@ def load_data():
     """Loads both the Database and the Kaggle User Interaction dataset."""
     print("1. Loading Game Metadata and Prices from Database...")
     conn = sqlite3.connect(DB_PATH)
+    
     query = """
         SELECT g.game_id, g.title, g.genres, g.metacritic, MIN(p.price) as price
         FROM Games g
         LEFT JOIN Prices p ON g.game_id = p.game_id
         WHERE g.genres IS NOT NULL
-        GROUP BY g.game_id;
+        GROUP BY g.game_id
+        ORDER BY g.game_id;
     """
     df_games = pd.read_sql_query(query, conn)
     conn.close()
