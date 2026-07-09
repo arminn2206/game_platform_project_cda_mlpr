@@ -94,41 +94,6 @@ game_platform_project/
 ```
 ## Link to Web Application:
 ### https://gameplatformprojectcdamlpr.streamlit.app
-
-## How the Streamlit app was made:
-
-```bash
-cd game_platform_project
-python -m venv venv
-venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# Edit .env and add your free RAWG API key from https://rawg.io/apidocs
-```
-
-### Running the Full Pipeline
-
-```bash
-# 1. Create the database and tables
-python db/setup_database.py
-
-# 2. Pull 1,000–5,000 games from RAWG
-python scripts/fetch_rawg_metadata.py --count 3000
-
-# 3. Gather Steam prices (auto-narrows Steam's catalogue to
-#    plausible matches before spending rate-limited requests)
-python scripts/fetch_steam_prices.py
-
-# 4. Load Epic Games Store data from a downloaded Kaggle CSV
-python scripts/load_epic_dataset.py --csv data/games.csv
-
-# 5. Resolve every raw store title to the correct game_id
-python scripts/fuzzy_match_games.py
-
-# 6. Export any unmatched prices for manual review
-python scripts/export_audit_queue.py
-
 # 7. Launch the web application
 streamlit run app.py
 ```
